@@ -6,10 +6,11 @@ export default function Document() {
     <Html suppressHydrationWarning>
       <Head>
         {/* meta description fica em cada página (next/head) — aqui geraria duplicata */}
-        {/* Favicon: só o símbolo (globo + E) num quadrado claro; o logo inteiro ficava cortado no quadrado */}
-        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* Favicon: a marca EM inteira (globo, E e M) num quadrado claro, sem o "Soluções Digitais", ilegível em 16–32 px.
+            O ?v= força os navegadores a trocar o ícone (o cache de /public é de 7 dias): suba o número ao trocar os arquivos. */}
+        <link rel="icon" type="image/svg+xml" href="/icon.svg?v=2" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=2" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
 
         {/* Avatares padrão da Hero vêm do Unsplash. A Inter é servida pelo próprio site (next/font, em _app). */}
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
