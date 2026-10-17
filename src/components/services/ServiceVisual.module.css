@@ -1,0 +1,249 @@
+/* Quadros da seção de serviços (ver ServiceVisual.tsx). O quadro dos principais é um container de tamanho
+   (container-type: size) com altura fixa por largura de tela: cards da mesma linha ficam iguais e não há CLS.
+   A cena de dentro (ServiceScenes.module.css) ocupa o quadro todo. Os complementares usam logos oficiais animados. */
+
+.stage {
+  position: relative;
+  overflow: hidden;
+  height: 16.5rem;
+  border-radius: 1rem;
+  container-type: size;
+  isolation: isolate;
+  border: 1px solid var(--color-border-subtle);
+}
+@media (min-width: 768px) {
+  .stage {
+    height: 17rem;
+  }
+}
+@media (min-width: 1024px) {
+  .stage {
+    height: 19rem;
+  }
+}
+
+/* Selo "Experimente" preso na borda de cima do quadro: instrução do site, fora da interface de mentira.
+   Laranja com texto azul-marinho (5,6:1) nos dois temas; depois da 1ª interação fica neutro com um ✓. */
+.wrap {
+  position: relative;
+  margin-top: 0.5rem;
+}
+.try {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0.875rem;
+  max-width: calc(100% - 1.75rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  margin: 0;
+  padding: 0.35rem 0.85rem 0.35rem 0.6rem;
+  border-radius: 99px;
+  background: #c9440e;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: translateY(-50%);
+  box-shadow: 0 6px 18px -6px rgb(241 90 36 / 0.65);
+}
+@media (min-width: 768px) {
+  .try {
+    font-size: 14px;
+  }
+}
+.try svg {
+  flex-shrink: 0;
+  width: 1.15em;
+  height: 1.15em;
+  margin-right: 0.15em;
+  animation: nudge 1.6s ease-in-out infinite;
+}
+.wrap[data-play='0'] .try svg {
+  animation-play-state: paused;
+}
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.15);
+  }
+}
+.wrap[data-acted] .try {
+  background: var(--color-surface-raised);
+  color: var(--color-foreground);
+  box-shadow:
+    inset 0 0 0 1.5px #f15a24,
+    0 6px 16px -8px rgb(10 17 40 / 0.4);
+}
+.wrap[data-acted] .try svg {
+  animation: none;
+  color: #c23e00;
+  stroke-width: 3;
+}
+:global(.dark) .wrap[data-acted] .try svg {
+  color: #f7941d;
+}
+/* Verbo certo para cada aparelho: "Clique" com mouse, "Toque" no celular */
+.touch {
+  display: none;
+}
+@media (hover: none), (pointer: coarse) {
+  .mouse {
+    display: none;
+  }
+  .touch {
+    display: inline;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .try svg {
+    animation: none;
+  }
+}
+
+/* ── Complementares: logos oficiais com um detalhe animado ── */
+.tile {
+  position: relative;
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.tile > svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+.whats {
+  background: #25d366;
+}
+.ads {
+  background: #fff;
+  border: 1px solid var(--color-border);
+}
+.insta {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+}
+.bubble {
+  position: absolute;
+  right: -0.9rem;
+  top: -0.7rem;
+  display: flex;
+  gap: 3px;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.8rem 0.8rem 0.8rem 0.2rem;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+}
+.bubble i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-foreground-muted);
+  animation: typing 1s ease-in-out;
+}
+.bubble i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.bubble i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.bars {
+  position: absolute;
+  right: -0.7rem;
+  bottom: -0.5rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 1.3rem;
+  padding: 0.2rem 0.3rem;
+  border-radius: 0.4rem;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+}
+.bars i {
+  width: 4px;
+  border-radius: 1px;
+  background: #34a853;
+  transform-origin: bottom;
+  animation: bar 1.6s ease-out;
+}
+.bars i:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.bars i:nth-child(3) {
+  animation-delay: 0.24s;
+}
+.heart {
+  position: absolute;
+  right: -0.6rem;
+  top: -0.6rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fd1d1d;
+  color: #fff;
+  animation: heart 1.4s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+.heart svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+@keyframes typing {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+@keyframes bar {
+  from {
+    transform: scaleY(0.15);
+  }
+}
+@keyframes heart {
+  0%,
+  20% {
+    transform: scale(0);
+  }
+  60%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Controle de reprodução. Fica no fim do arquivo para vencer o "animation:" de cada elemento (mesma especificidade):
+   parado até o card entrar na tela, uma vez ao entrar, em loop no hover/foco. */
+.anim * {
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+  animation-play-state: paused;
+}
+.anim[data-play='1'] * {
+  animation-play-state: running;
+}
+.anim.loop * {
+  animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim *,
+  .anim.loop * {
+    animation: none !important;
+  }
+}

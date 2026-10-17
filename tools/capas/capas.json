@@ -1,0 +1,14 @@
+[
+  { "slug": "condomira", "desktop": "public/mockups/condomira/portal-sindico.webp", "mobile": "condomira-m.png", "url": "condomira-portal.vercel.app",
+    "dark": "#0B2A33", "base": "#1F6272", "glow": "#C8A24B", "saida": "public/mockups/condomira/capa.webp" },
+  { "slug": "limpoai", "desktop": "public/mockups/limpoai/abertura.webp", "mobile": "limpoai-m.png", "url": "limpoaiaguasclaras.com.br",
+    "dark": "#061F33", "base": "#0C4766", "glow": "#3DBDE1", "saida": "public/mockups/limpoai/capa.webp" },
+  { "slug": "veritas", "desktop": "veritas-d.png", "mobile": "veritas-m.png", "url": "veritas-auditoria.vercel.app",
+    "dark": "#021A33", "base": "#03294D", "glow": "#4E7C3C", "saida": "public/mockups/veritas/capa.webp" },
+  { "slug": "cm-imoveis", "desktop": "cm-d.png", "mobile": "cm-m.png", "url": "cmimoveisbsb.com.br",
+    "dark": "#1E0F3A", "base": "#553398", "glow": "#DD5289", "saida": "public/mockups/cm-imoveis/capa.webp" },
+  { "slug": "fino-trato", "desktop": "fino-d.png", "mobile": "fino-m.png", "url": "finotrato-higienizacao.vercel.app",
+    "dark": "#0A2A5E", "base": "#1565C0", "glow": "#4FACF0", "saida": "public/mockups/fino-trato/capa.webp" },
+  { "slug": "cejb", "desktop": "public/mockups/cejb-desktop.webp", "crop": [0, 0, 2387, 1492], "mobile": "cejb-m.png", "url": "cejbonline.com.br",
+    "dark": "#0F2E12", "base": "#2E7D32", "glow": "#A5D6A7", "saida": "public/mockups/cejb/capa.webp" }
+]

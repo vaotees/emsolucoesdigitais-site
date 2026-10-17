@@ -1,0 +1,207 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Número que conta de 0 até o valor (cena de aplicativos nos serviços da home, ServiceScenes) */
+@property --n {
+  syntax: '<integer>';
+  inherits: true;
+  initial-value: 0;
+}
+
+/* Cor da luz de fundo do portfólio (/cases): muda com o case em foco e a troca é animada */
+@property --ambient {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f15a24;
+}
+
+/* Navegação entre páginas com transição do navegador (Chrome e Safari recentes; nos outros, troca normal).
+   A capa do card em /cases e a do topo do case têm o mesmo view-transition-name e uma vira a outra. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+::view-transition-group(*) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-foreground-muted);
+    font-family: var(--font-inter), sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #F7941D;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Smooth transitions for themed elements */
+  .theme-transition {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  /* Performance: isola repaints do canvas de particles */
+  canvas[aria-hidden="true"] {
+    will-change: auto;
+    contain: strict;
+  }
+
+  /* Performance: compositing hint para elementos com framer-motion */
+  [data-framer-motion-animate],
+  .motion-safe\:animate-any {
+    will-change: transform, opacity;
+  }
+
+  /* Entrada da Hero e do menu em CSS: roda já no primeiro paint, sem esperar o JavaScript */
+  @keyframes intro-in {
+    /* 0.01 e não 0: o Chrome ignora no LCP o que é pintado com opacidade 0, e o texto só "contaria" bem depois */
+    from {
+      opacity: 0.01;
+      transform: translateY(var(--in-y, 20px));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .intro-in {
+    animation: intro-in var(--in-dur, 0.8s) cubic-bezier(0.22, 1, 0.36, 1) var(--in-delay, 0s) both;
+  }
+
+  /* Portfólio: luz de fundo na cor do case em foco (ver casos.tsx) */
+  .ambient-root {
+    transition: --ambient 0.9s ease;
+  }
+  .ambient-glow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 70% 55% at 50% 0%, color-mix(in srgb, var(--ambient) 10%, transparent) 0%, transparent 70%);
+  }
+  .dark .ambient-glow {
+    background: radial-gradient(ellipse 70% 55% at 50% 0%, color-mix(in srgb, var(--ambient) 18%, transparent) 0%, transparent 70%);
+  }
+
+  /* Selo "Ver case" que segue o cursor sobre a capa; só em telas com mouse */
+  .cursor-pill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 9999px;
+    background: var(--color-foreground);
+    color: var(--color-surface);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    scale: 0.8;
+    translate: calc(var(--mx, 0px) - 50%) calc(var(--my, 0px) - 50%);
+    transition: opacity 0.2s ease, scale 0.2s ease, translate 0.08s linear;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .group:hover .cursor-pill {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+
+  /* Seções abaixo da primeira tela: o navegador só calcula layout e pintura quando chegam perto da tela.
+     Corta o trabalho inicial nas páginas longas (os cases com guia de marca passam de 10 mil px). */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
+  }
+
+  /* Tela ampliada nos cases (dialog nativo) */
+  dialog.lightbox {
+    margin: auto;
+    overflow: visible;
+  }
+  dialog.lightbox[open] {
+    animation: lightbox-in 0.25s ease-out;
+  }
+  @keyframes lightbox-in {
+    from {
+      opacity: 0;
+      scale: 0.97;
+    }
+  }
+
+  /* Entrada ao rolar, em CSS (scroll-driven): sem suporte, o conteúdo só aparece parado.
+     Sem fade de opacidade: o conteúdo fora da tela continua legível (leitores e auditorias de contraste veem o texto). */
+  @keyframes reveal-up {
+    from {
+      translate: 0 48px;
+      scale: 0.98;
+    }
+    to {
+      translate: 0 0;
+      scale: 1;
+    }
+  }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal {
+        animation: reveal-up linear both;
+        animation-timeline: view();
+        animation-range: entry 5% cover 25%;
+      }
+    }
+  }
+
+  /* Reduce motion: respeita preferência do sistema */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    canvas[aria-hidden="true"] {
+      display: none;
+    }
+    .intro-in {
+      animation: none;
+    }
+  }
+}

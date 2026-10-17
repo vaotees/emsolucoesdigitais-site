@@ -1,0 +1,385 @@
+/* Depoimentos: um por vez, com abas por cliente. O tempo do avanço automático é a animação da barra da aba
+   ativa (o JS só troca o índice no animationend), então pausar é só CSS: fora da tela, com o mouse em cima,
+   com foco de teclado, lendo o texto completo ou no botão de pausa. Sem movimento reduzido não há avanço. */
+
+@property --acc {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f15a24;
+}
+
+.root {
+  transition: --acc 0.8s ease;
+}
+
+/* ---------- Abas ---------- */
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px;
+  scroll-padding-inline: 2px;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 1rem 0.4rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-glass-border);
+  background: var(--color-glass);
+  color: var(--color-foreground-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    color 0.3s,
+    border-color 0.3s,
+    background-color 0.3s;
+}
+.tab:hover {
+  color: var(--color-foreground);
+}
+.tab[aria-selected='true'] {
+  color: var(--color-foreground);
+  border-color: color-mix(in srgb, var(--acc) 60%, transparent);
+  background: color-mix(in srgb, var(--acc) 12%, var(--color-glass));
+}
+.tab:focus-visible,
+.pause:focus-visible,
+.more:focus-visible,
+.covers:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 3px;
+}
+
+/* No celular, só a aba ativa mostra o nome; as outras ficam no avatar e abrem ao serem escolhidas */
+.tabLabel {
+  display: inline-block;
+  overflow: hidden;
+}
+@media (max-width: 639px) {
+  .tab {
+    gap: 0;
+    padding-right: 0.4rem;
+  }
+  .tab[aria-selected='true'] {
+    gap: 0.55rem;
+    padding-right: 0.95rem;
+  }
+  .tab:not([aria-selected='true']) .tabLabel {
+    max-width: 0;
+  }
+  .tabLabel {
+    max-width: 10rem;
+    transition: max-width 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .tab {
+    transition:
+      color 0.3s,
+      border-color 0.3s,
+      background-color 0.3s,
+      gap 0.45s,
+      padding 0.45s;
+  }
+}
+
+.tabAvatar {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--acc);
+  transform-origin: left;
+  transform: scaleX(0);
+  animation: progress var(--autoplay, 7s) linear forwards;
+}
+@keyframes progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+.root[data-play='0'] .progress,
+.root[data-pausado] .progress,
+.root:has(:focus-visible) .progress {
+  animation-play-state: paused;
+}
+@media (hover: hover) {
+  .root:hover .progress {
+    animation-play-state: paused;
+  }
+}
+
+.pause {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-glass-border);
+  background: var(--color-glass);
+  color: var(--color-foreground-muted);
+  transition: color 0.3s;
+}
+.pause:hover {
+  color: var(--color-foreground);
+}
+
+/* ---------- Depoimento ---------- */
+
+.panel {
+  position: relative;
+  display: grid;
+  gap: 2rem;
+  padding: 1.5rem;
+  border-radius: 1.75rem;
+  touch-action: pan-y; /* deslizar para o lado troca o depoimento; a rolagem vertical continua com o navegador */
+  overflow: hidden;
+}
+@media (min-width: 768px) {
+  .panel {
+    padding: 2.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .panel {
+    grid-template-columns: 1.08fr 1fr;
+    align-items: center;
+    gap: 3.5rem;
+    padding: 3rem;
+  }
+}
+/* Brilho com a cor do case ativo, atrás do conteúdo */
+.panel::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  right: -15%;
+  bottom: -35%;
+  width: 70%;
+  height: 90%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--acc) 22%, transparent), transparent);
+  pointer-events: none;
+}
+
+.quote {
+  width: 2.75rem;
+  height: 2.75rem;
+  color: #f15a24; /* laranja da marca: o bloco fala EM; a cor do cliente fica no brilho e na capa */
+  margin-bottom: 1.25rem;
+}
+.quote path {
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+
+/* Mesma família dos títulos do site (Inter), num peso de citação: semibold, sem competir com o título da seção */
+.highlight {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.4rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--color-foreground);
+  text-wrap: balance;
+}
+.word {
+  display: inline-block;
+}
+
+.more {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--acc) 70%, transparent);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+  border-radius: 4px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.chips li {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  color: var(--color-foreground-muted);
+}
+
+.avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 3.5px color-mix(in srgb, var(--acc) 70%, transparent);
+}
+
+/* ---------- Capa do case ---------- */
+
+.covers {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+  box-shadow: 0 40px 70px -40px color-mix(in srgb, var(--acc) 70%, transparent);
+  transform: perspective(1100px) rotateX(calc(var(--ty, 0) * -5deg)) rotateY(calc(var(--tx, 0) * 7deg));
+  transition:
+    transform 0.4s ease-out,
+    box-shadow 0.8s;
+}
+.cover {
+  opacity: 0;
+  transform: scale(1.07);
+  transition:
+    opacity 0.7s ease,
+    transform 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.cover[data-on] {
+  opacity: 1;
+  transform: scale(1);
+}
+@media (hover: hover) {
+  .covers:hover .cover[data-on] {
+    transform: scale(1.035);
+  }
+}
+.cta {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(10, 17, 40, 0.86);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+.cta svg {
+  transition: transform 0.3s;
+}
+.covers:hover .cta svg {
+  transform: translate(2px, -2px);
+}
+
+/* ---------- Movimento ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Aspas desenhadas a traço e depois preenchidas quando o quadro aparece (e a cada troca) */
+  .quote path {
+    fill-opacity: 0;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  .root[data-play='1'] .quote path {
+    animation:
+      draw 1s cubic-bezier(0.6, 0, 0.2, 1) forwards,
+      fill-in 0.45s 0.8s forwards;
+  }
+  .root[data-play='1'] .quote path + path {
+    animation-delay: 0.15s, 0.95s;
+  }
+
+  /* Ao trocar: palavras sobem desfocadas, uma após a outra; o resto entra em seguida */
+  .root[data-trocou] .word {
+    animation: word-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i) * 28ms);
+  }
+  .root[data-trocou] .fade {
+    animation: fade-up 0.6s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+}
+
+/* Na primeira vez, as palavras da frase acendem conforme a seção sobe na tela */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .root:not([data-trocou]) .word {
+      animation: lit linear both;
+      animation-timeline: view();
+      animation-range: cover calc(10% + var(--p) * 22%) cover calc(20% + var(--p) * 22%);
+    }
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes fill-in {
+  to {
+    fill-opacity: 1;
+  }
+}
+@keyframes word-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.45em);
+    filter: blur(6px);
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes lit {
+  from {
+    color: var(--color-foreground-subtle);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress {
+    animation: none;
+  }
+  .root,
+  .tab,
+  .tabLabel,
+  .cover,
+  .covers {
+    transition: none;
+  }
+  .covers {
+    transform: none;
+  }
+}

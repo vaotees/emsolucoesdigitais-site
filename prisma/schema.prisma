@@ -1,0 +1,211 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth Models
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// CMS Models
+
+model Feature {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String   @default("Check") // Lucide icon name
+  highlight   Boolean  @default(false) // card largo (ocupa duas colunas) na seção de serviços
+  group       String   @default("principal") // principal | complementar
+  visual      String   @default("") // animação do card: apps, sites, landing, design (principais); ia, trafego, social (complementares)
+  deliverables String  @db.Text @default("") // entregas, uma por linha
+  proofCases  String   @default("") // slugs dos cases que comprovam o serviço, separados por vírgula
+  i18n        Json?    // traduções: { "en": { campo: "texto" } }; campo vazio usa o português (ver docs/i18n.md)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SectionFeaturesConfig {
+  id             String   @id @default("singleton")
+  tagline        String   @default("NOSSOS SERVIÇOS")
+  title1         String   @default("Tudo que você precisa para se tornar ")
+  titleHighlight String   @default("referência no digital")
+  description    String   @default("Uma suite completa de serviços integrados, construída para marcas que não aceitam mediocridade.")
+  i18n        Json?    // traduções: { "en": { campo: "texto" } }; campo vazio usa o português (ver docs/i18n.md)
+  updatedAt      DateTime @updatedAt
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  authorName  String
+  authorRole  String
+  content     String
+  rating      Int      @default(5)
+  order       Int      @default(0)
+  avatarUrl   String?
+  highlight   String   @default("") // frase em destaque: trecho do próprio depoimento
+  caseSlug    String   @default("") // case do cliente: capa e link ao lado do depoimento
+  deliverables String  @db.Text @default("") // o que foi entregue, um item por linha
+  i18n        Json?    // traduções: { "en": { campo: "texto" } }; campo vazio usa o português (ver docs/i18n.md)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SectionTestimonialsConfig {
+  id             String   @id @default("singleton")
+  tagline        String   @default("DEPOIMENTOS")
+  title1         String   @default("O que nossos clientes ")
+  titleHighlight String   @default("dizem sobre nós")
+  description    String   @default("Resultados reais de marcas que escolheram a autoridade digital.")
+  i18n        Json?    // traduções: { "en": { campo: "texto" } }; campo vazio usa o português (ver docs/i18n.md)
+  updatedAt      DateTime @updatedAt
+}
+
+model SectionHeroConfig {
+  id              String   @id @default("singleton")
+  badge           String   @default("EM Soluções Digitais")
+  titlePrefix     String   @default("Especialistas em")
+  rotatingWords   String   @default("Autoridade Digital,Websites Premium,Design & Branding,Automação com IA,Tráfego Pago,Landing Pages,Redes Sociais")
+  description     String   @default("Estratégia, design e tecnologia de ponta para posicionar seu negócio como referência no mercado digital. Resultados mensuráveis, estética impecável.")
+  ctaPrimaryText  String   @default("Quero minha Autoridade Digital")
+  ctaPrimaryUrl   String   @default("#contact")
+  ctaSecondaryText String  @default("Ver nossos casos")
+  ctaSecondaryUrl String   @default("#testimonials")
+  socialClients   String   @default("+127 clientes")
+  socialRating    String   @default("4.9 / 5.0")
+  socialRevenue   String   @default("R$12M+ em resultados gerados")
+  socialAvatar1   String?
+  socialAvatar2   String?
+  socialAvatar3   String?
+  socialAvatar4   String?
+  i18n        Json?    // traduções: { "en": { campo: "texto" } }; campo vazio usa o português (ver docs/i18n.md)
+  updatedAt       DateTime @updatedAt
+}
+
+// ─── Client Case Studies ───────────────────────────────
+
+model ClientProject {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  order       Int      @default(0)
+  category    String   @default("")
+  clientName  String   @default("")
+  tagline     String   @default("")
+  description String   @db.Text @default("")
+  role        String   @default("")
+  status      String   @default("Em Produção")
+  year        String   @default("")
+  liveUrl     String   @default("")
+  caseUrl     String   @default("")
+  mockupCardUrl  String?  @db.Text   // Card left-panel in /casos
+  mockupHeroUrl  String?  @db.Text   // 16:9 hero in /cases/[slug]
+  stackTags   String   @default("")
+  challengeText  String @db.Text @default("")
+  solutionText   String @db.Text @default("")
+  impactText     String @db.Text @default("")
+  // Brand / Identity fields
+  brandGuidelinesUrl String @default("")          // External brand guidelines URL
+  logoUrl            String @db.Text @default("") // Primary logo image URL
+  logoDownloadUrl    String @default("")          // SVG download URL
+  brandColors        String @db.Text @default("") // JSON array of { name, hex, fg }
+  brandFontHeading   String @default("Playfair Display") // Heading / display font
+  brandFontBody      String @default("Montserrat")       // Body / UI font
+  caseContent        Json?  // Página do case gerada pelo template (/cases/[slug]): seções, cores, stack, marca, CTA
+  i18n        Json?    // traduções: { "en": { campo: "texto" } }; campo vazio usa o português (ver docs/i18n.md)
+  highlights  ClientProjectHighlight[]
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ClientProjectHighlight {
+  id         String        @id @default(cuid())
+  projectId  String
+  project    ClientProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  iconName   String        @default("Zap")
+  title      String        @default("")
+  body       String        @db.Text @default("")
+  order      Int           @default(0)
+}
+
+// ─── SEO Configuration ────────────────────────────────
+
+model SeoConfig {
+  id                String   @id @default("singleton")
+  siteTitle         String   @default("EM Soluções Digitais | Agência Digital Premium")
+  metaDescription   String   @default("Estratégia, design e tecnologia de ponta para posicionar seu negócio como referência no mercado digital.")
+  ogImage           String   @default("")
+  keywords          String   @default("agência digital, websites, marketing digital, tráfego pago, automação")
+  canonicalUrl      String   @default("")
+  robotsIndex       Boolean  @default(true)
+  googleAnalyticsId String   @default("")   // GA4 Measurement ID (G-XXXXXXXXXX)
+  i18n        Json?    // traduções: { "en": { campo: "texto" } }; campo vazio usa o português (ver docs/i18n.md)
+  updatedAt         DateTime @updatedAt
+}
+
+// ─── CRM — Leads ──────────────────────────────────────
+
+model Lead {
+  id          String   @id @default(cuid())
+  source      String   @default("form")       // "form" | "whatsapp" | "manual"
+  status      String   @default("new")        // "new" | "contacted" | "proposal" | "closed" | "lost"
+  name        String
+  email       String
+  whatsapp    String   @default("")
+  location    String   @default("")
+  service     String   @default("")
+  message     String   @db.Text @default("")
+  locale      String   @default("pt-BR") // idioma da página em que o formulário foi enviado (pt-BR | en)
+  notes       String   @db.Text @default("")  // Admin internal notes
+  replied     Boolean  @default(false)
+  repliedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

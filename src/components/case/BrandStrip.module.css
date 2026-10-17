@@ -1,0 +1,187 @@
+/* Faixa "Marcas que criei" (BrandStrip.tsx). Quadro claro nos dois temas: os logos foram feitos para fundo claro.
+   Linhas de construção na cor de destaque do site; grade, linhas e paleta aparecem no hover, no foco e no toque. */
+
+.tile {
+  display: block;
+  border-radius: 1.5rem;
+  outline: 2px solid transparent;
+  outline-offset: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+.tile:focus-visible {
+  outline-color: #c23e00;
+}
+:global(.dark) .tile:focus-visible {
+  outline-color: #f7941d;
+}
+
+.plate {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: #f6f5f1;
+  border: 1px solid rgb(15 23 42 / 0.08);
+  container-type: size;
+  transition: border-color 0.3s ease;
+}
+:global(.dark) .plate {
+  background: #eeece6;
+  border-color: rgb(255 255 255 / 0.06);
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgb(194 62 0 / 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(194 62 0 / 0.09) 1px, transparent 1px);
+  background-size: 6.25cqw 6.25cqw;
+  background-position: center;
+}
+
+.center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 10cqh;
+}
+
+/* O quadro do logo tem o tamanho exato da imagem: as linhas casam com as bordas do desenho */
+.mark {
+  position: relative;
+  display: block;
+}
+
+.logo {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 70cqw;
+  max-height: 42cqh;
+}
+
+.guides {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.guides * {
+  fill: none;
+  stroke: #c23e00;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.guides circle {
+  stroke-opacity: 0.55;
+}
+
+.ext > span {
+  position: absolute;
+  pointer-events: none;
+}
+.extTop,
+.extBottom {
+  left: -100cqw;
+  right: -100cqw;
+  border-top: 1px dashed rgb(194 62 0 / 0.5);
+}
+.extTop {
+  top: 0;
+}
+.extBottom {
+  bottom: 0;
+}
+.extLeft,
+.extRight {
+  top: -100cqh;
+  bottom: -100cqh;
+  border-left: 1px dashed rgb(194 62 0 / 0.5);
+}
+.extLeft {
+  left: 0;
+}
+.extRight {
+  right: 0;
+}
+
+.palette {
+  position: absolute;
+  left: 50%;
+  bottom: 8cqh;
+  display: flex;
+  gap: 6px;
+  transform: translate(-50%, 6px);
+}
+.chip {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.14);
+}
+
+/* Escondidos até o hover, o foco ou o toque (sem texto: não entram na conta de contraste) */
+.grid,
+.guides,
+.ext,
+.palette {
+  opacity: 0;
+}
+
+.tile:hover .grid,
+.tile:focus-visible .grid,
+.tile:active .grid,
+.tile[data-active] .grid,
+.tile:hover .guides,
+.tile:focus-visible .guides,
+.tile:active .guides,
+.tile[data-active] .guides,
+.tile:hover .ext,
+.tile:focus-visible .ext,
+.tile:active .ext,
+.tile[data-active] .ext,
+.tile:hover .palette,
+.tile:focus-visible .palette,
+.tile:active .palette,
+.tile[data-active] .palette {
+  opacity: 1;
+}
+.tile:hover .palette,
+.tile:focus-visible .palette,
+.tile:active .palette,
+.tile[data-active] .palette {
+  transform: translate(-50%, 0);
+}
+.tile:hover .plate,
+.tile:focus-visible .plate {
+  border-color: rgb(194 62 0 / 0.35);
+}
+
+/* Movimento só para quem não pediu menos: as linhas se desenham da esquerda para a direita e a paleta sobe */
+@media (prefers-reduced-motion: no-preference) {
+  .grid,
+  .ext,
+  .palette {
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s ease;
+  }
+  .guides {
+    clip-path: inset(-2px 100% -2px -2px);
+    transition:
+      opacity 0.2s ease,
+      clip-path 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .tile:hover .guides,
+  .tile:focus-visible .guides,
+  .tile:active .guides,
+  .tile[data-active] .guides {
+    clip-path: inset(-2px -2px -2px -2px);
+  }
+}

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /en/admin
+Disallow: /login
+Disallow: /en/login
+
+Sitemap: https://emsolucoesdigitais.com.br/sitemap.xml
